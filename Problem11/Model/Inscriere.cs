@@ -5,11 +5,11 @@ namespace Problem11.Model
 {
     public class Inscriere : Entity<int>
     {
-        public Inscriere(int id1, int id2, int id3)
+        public Inscriere(int id, int idpart, int idcursa)
         {
-            Id = id1;
-            IdPart = id2;
-            IdCursa = id3;
+            Id = id;
+            IdPart = idpart;
+            IdCursa = idcursa;
         }
         [XmlAttribute]
         public int Id { get; set; }

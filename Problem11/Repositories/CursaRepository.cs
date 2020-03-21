@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using log4net;
 using Problem11.ConnectionUtils;
@@ -40,6 +41,34 @@ namespace Problem11.Repositories
             }
         }
 
+        public int findIdByCapacitate(int capacitate)
+        {
+            logger.InfoFormat("Se cauta id-ul cursei cu capacitatea {0}", capacitate);
+
+            IDbConnection conn = DBUtils.getConnection();
+
+            using (var com = conn.CreateCommand())
+            {
+                com.CommandText = "select idCursa from Cursa where capacitate=@capacitate";
+
+                IDbDataParameter cap = com.CreateParameter();
+                cap.ParameterName = "@capacitate";
+                cap.Value = capacitate;
+                com.Parameters.Add(cap);
+                using (var Data = com.ExecuteReader())
+                {
+                    if (Data.Read())
+                    {
+                        int id = Data.GetInt32(0);
+                        return id;
+                    }
+                }
+                
+            }
+            logger.InfoFormat("nu s-a gasit cursa cu capacitatea {0}", capacitate);
+            return 0;
+        }
+
         public Cursa findOne(int id)
         {
             logger.InfoFormat("Se cauta cursa cu id-ul {0}", id);
@@ -69,6 +98,32 @@ namespace Problem11.Repositories
             }
             logger.InfoFormat("Nu s a gasit Cursa cu id ul {0}", id);
             return null;
+        }
+
+        public List<DTOBJCursa> GroupByCapacitate()
+        {
+            List<DTOBJCursa> rezultat = new List<DTOBJCursa>();
+
+            IDbConnection conn = DBUtils.getConnection();
+
+            using(var com = conn.CreateCommand())
+            {
+                com.CommandText = "select C.idCursa,C.capacitate,count(P.idParticipant) as Nr from Cursa C LEFT JOIN Inscriere I on C.idCursa = I.idCursa LEFT JOIN Participant P on I.idParticipant = P.idParticipant GROUP BY C.capacitate";
+
+                using(var Data = com.ExecuteReader())
+                {
+                    while(Data.Read())
+                    {
+                        int idCursa = Data.GetInt32(0);
+                        int capacitate = Data.GetInt32(1);
+                        int nr = Data.GetInt32(2);
+                        DTOBJCursa obiect = new DTOBJCursa(idCursa, capacitate, nr);
+                        rezultat.Add(obiect);
+
+                    }
+                }
+            }
+            return rezultat;
         }
 
         public void save(Cursa entity)

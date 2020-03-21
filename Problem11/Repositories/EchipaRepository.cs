@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using log4net;
 using Problem11.ConnectionUtils;
@@ -14,6 +15,40 @@ namespace Problem11.Repositories
         public EchipaRepository()
         {
             logger.Info("Se creeaza Repository Echipa");
+        }
+
+        public List<DTOBJPart> cautare(string numeEchipa)
+        {
+            logger.InfoFormat("Se cauta toti participantii care apartin echipei {0}", numeEchipa);
+
+            List<DTOBJPart> rezultat = new List<DTOBJPart>();
+
+            IDbConnection conn = DBUtils.getConnection();
+
+            using (var com = conn.CreateCommand())
+            {
+                com.CommandText = "select P.nume,C.capacitate from Cursa C INNER JOIN Inscriere I on C.idCursa = I.idCursa INNER JOIN Participant P on I.idParticipant = P.idParticipant INNER JOIN Echipa E on P.idEchipa = E.idEchipa WHERE E.nume=@name";
+
+                IDbDataParameter name = com.CreateParameter();
+                name.ParameterName = "@name";
+                name.Value = numeEchipa;
+                com.Parameters.Add(name);
+
+
+                using (var Data = com.ExecuteReader())
+                {
+                    while (Data.Read())
+                    {
+                        String nume = Data.GetString(0);
+                        int capacitate = Data.GetInt32(1);
+                        
+                        DTOBJPart obiect = new DTOBJPart(nume, capacitate);
+                        rezultat.Add(obiect);
+
+                    }
+                }
+            }
+            return rezultat;
         }
 
         public void delete(int id)
@@ -38,6 +73,34 @@ namespace Problem11.Repositories
                 }
                 logger.InfoFormat("S-a sters echipa cu id-ul {0}", id);
             }
+        }
+
+        public int FindIdByName(string nume)
+        {
+            logger.InfoFormat("Se cauta id-ul echipei {0}", nume);
+
+            IDbConnection conn = DBUtils.getConnection();
+
+            using(var com = conn.CreateCommand())
+            {
+                com.CommandText = "select idEchipa from Echipa where nume=@name";
+
+                IDbDataParameter name = com.CreateParameter();
+                name.ParameterName = "@name";
+                name.Value = nume;
+                com.Parameters.Add(name);
+
+                using(var Data = com.ExecuteReader())
+                {
+                    if (Data.Read())
+                    {
+                        int id = Data.GetInt32(0);
+                        return id;
+                    }
+                }
+            }
+            logger.Info("Nu s-a gasit Echipa cu numele cerut");
+            return 0;
         }
 
         public Echipa findOne(int id)

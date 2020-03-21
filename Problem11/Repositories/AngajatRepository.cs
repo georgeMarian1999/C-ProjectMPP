@@ -70,6 +70,38 @@ namespace Problem11.Repositories
             return null;
         }
 
+        public bool LocalLogin(string username, string password)
+        {
+            logger.InfoFormat("Se cauta daca se poate efectua logarea angajatului {0}", username);
+
+            IDbConnection conn = DBUtils.getConnection();
+
+            using(var com = conn.CreateCommand())
+            {
+                com.CommandText = "select idAngajat from Angajat where username=@user and password=@pass";
+
+                IDbDataParameter user = com.CreateParameter();
+                user.ParameterName = "@user";
+                user.Value = username;
+                com.Parameters.Add(user);
+
+                IDbDataParameter pass = com.CreateParameter();
+                pass.ParameterName = "@pass";
+                pass.Value = password;
+                com.Parameters.Add(pass);
+
+                using(var Data = com.ExecuteReader())
+                {
+                    if (Data.Read())
+                    {
+                        return true;
+                    }
+                }
+
+            }
+            return false;
+        }
+
         public void save(Angajat entity)
         {
             logger.InfoFormat("Se salveaza angajatul cu id-il {0}", entity.Id);

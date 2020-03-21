@@ -40,6 +40,28 @@ namespace Problem11.Repositories
             }
         }
 
+        public int FindMaxId()
+        {
+            logger.Info("Se cauta id-ul maxim din Participant");
+
+            IDbConnection conn = DBUtils.getConnection();
+
+            using(var com = conn.CreateCommand())
+            {
+                com.CommandText = "select max(idParticipant) as maxim from Participant";
+                using(var Data= com.ExecuteReader())
+                {
+                    if (Data.Read())
+                    {
+                        int id = Data.GetInt32(0);
+                        return id;
+                    }
+                }
+            }
+            logger.Info("Id ul maxim este 0");
+            return 0;
+        }
+
         public Participant findOne(int id)
         {
             logger.InfoFormat("Se cauta participantul cu id-ul {0}", id);

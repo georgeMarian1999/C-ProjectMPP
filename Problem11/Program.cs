@@ -1,6 +1,8 @@
 ﻿using System;
 using Problem11.Repositories;
 using Problem11.Model;
+using System.Collections.Generic;
+
 namespace Problem11
 {
     class MainClass
@@ -12,7 +14,7 @@ namespace Problem11
             CursaRepository cursa = new CursaRepository();
             Console.WriteLine(cursa.findOne(1).Capacitate);
             EchipaRepository echipaRepository = new EchipaRepository();
-            Console.WriteLine(echipaRepository.findOne(25).Nume);
+            Console.WriteLine(echipaRepository.findOne(1).Nume);
             ParticipantRepository participant = new ParticipantRepository();
             Console.WriteLine(participant.findOne(1).Nume);
 
@@ -31,6 +33,34 @@ namespace Problem11
             cursa.delete(100);
             echipaRepository.delete(200);
             participant.delete(600);
+
+            int maxim = participant.FindMaxId();
+            Console.WriteLine(maxim);
+
+            Console.WriteLine(cursa.findIdByCapacitate(500));
+
+            List<DTOBJCursa> list = cursa.GroupByCapacitate();
+
+            foreach (DTOBJCursa test in list)
+            {
+                Console.Write(test.Capacitate);
+                Console.Write(" ");
+                Console.WriteLine(test.NrInscrisi);
+            }
+            Console.WriteLine(angajat.LocalLogin("mgar1992", "12234"));
+            Console.WriteLine(angajat.LocalLogin("mgar1992", "1234"));
+            Console.WriteLine(echipaRepository.FindIdByName("BMW"));
+
+
+            List<DTOBJPart> list2 = echipaRepository.cautare("Suzuki");
+            foreach(DTOBJPart test2 in list2)
+            {
+                Console.Write(test2.Nume);
+                Console.Write(" ");
+                Console.WriteLine(test2.Capacitate);
+            }
+
+
 
 
 
